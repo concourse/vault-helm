@@ -117,13 +117,12 @@ for users looking to use this chart with Consul Helm.
 {{- define "vault.args" -}}
   {{ if or (eq .mode "standalone") (eq .mode "ha") }}
           - |
-            mkdir ~/postgres;
-            cp /vault/userconfig/postgres/* ~/postgres/;
-            chmod 0600 ~/postgres/vault.*;
+            mkdir /vault/postgres
+            cp /vault/userconfig/postgres/* /vault/postgres/
+            chmod 400 /vault/postgres/*
+            POSTGRES_IP=`cat /vault/userconfig/postgres/postgres.ip`
+            POSTGRES_SECRET=`cat /vault/userconfig/postgres/postgres.secret`
             sed -E "s/HOST_IP/${HOST_IP?}/g" /vault/config/extraconfig-from-values.hcl > /tmp/storageconfig.hcl;
-            sed -Ei "s/POD_IP/${POD_IP?}/g" /tmp/storageconfig.hcl;
-            POSTGRES_IP=`cat ~/postgres/postgres.ip`;
-            POSTGRES_SECRET=`cat ~/postgres/postgres.secret`;
             sed -Ei "s/%POSTGRES_IP%/${POSTGRES_IP}/g" /tmp/storageconfig.hcl;
             sed -Ei "s/%POSTGRES_SECRET%/${POSTGRES_SECRET}/g" /tmp/storageconfig.hcl;
             /usr/local/bin/docker-entrypoint.sh vault server -config=/tmp/storageconfig.hcl
